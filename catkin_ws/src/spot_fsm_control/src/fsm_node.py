@@ -73,7 +73,7 @@ def try_state_send(state_machine, action):
 
 class FsmNode:
 
-    def __init__(self, robot: SpotControlInterface, robot_sdk, participant=-1, condition="null"):
+    def __init__(self, robot: SpotControlInterface, robot_sdk, timestamp, participant=-1, condition="null"):
         ## data collection
         self.node_start_time = time.time()
         self.columns_hololens_data = ["timestamp", "gaze_origin [x,y,z]", "gaze_direction unit vector [x,y,z]", "gaze_direction screen position [x,y,?]", "camera position [x,y,z]", "camera orientation [w,x,y,z]"]
@@ -88,9 +88,9 @@ class FsmNode:
         self.wait_time_for_execution = 2
         
         participant_dir.mkdir( parents=True, exist_ok=True )    
-        self.filename_odom = f"{participant_dir}/{condition}_odom.csv"
-        self.filename_hololens = f"{participant_dir}/{condition}_hololens.csv"
-        self.filename_actions = f"{participant_dir}/{condition}_actions.csv"
+        self.filename_odom = f"{participant_dir}/{condition}_odom_{timestamp}.csv"
+        self.filename_hololens = f"{participant_dir}/{condition}_hololens_{timestamp}.csv"
+        self.filename_actions = f"{participant_dir}/{condition}_actions_{timestamp}.csv"
         
         with open(self.filename_hololens, mode="w", newline='', encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -385,9 +385,9 @@ if __name__ == "__main__":
             
             time.sleep(1)
 
-
-            fsm = FsmNode(robot=robotInterface, robot_sdk=robot, participant=participant, condition=condition)
-            vss = VideoStreamSaver(robotInterface.image_client, participant, condition)
+            timestamp = datetime.now().strftime("%Y-%m-%dT%H%M%S")
+            fsm = FsmNode(robot=robotInterface, robot_sdk=robot, timestamp=timestamp, participant=participant, condition=condition)
+            vss = VideoStreamSaver(robotInterface.image_client, participant, condition, timestamp)
             fsm.run(vss)
 
         for out in vss.video_writers:
