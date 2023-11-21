@@ -18,12 +18,16 @@ try:
             try:
                 if event.button == 12:
                     print("Joystick button pressed down")
+                    break
                 elif event.button == 11:
                     print("Joystick button pressed up")
+                    break
                 elif event.button == 13:
                     print("Joystick button pressed left")
-                if event.button == 14:
+                    break
+                elif event.button == 14:
                     print("Joystick button pressed right")
+                    break
             except:
                 pass
                 

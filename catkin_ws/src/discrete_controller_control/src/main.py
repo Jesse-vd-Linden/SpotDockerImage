@@ -1,4 +1,5 @@
 import pygame
+from time import sleep
 import rospy
 from std_msgs.msg import String  # Replace with your desired ROS message type
 
@@ -26,17 +27,22 @@ class PlayStationController:
                     if event.button == 11:
                         print("Joystick button pressed up")
                         self.publish_ros_message("walk_to_forward")
+                        break
                     elif event.button == 12:
                         print("Joystick button pressed down")
                         self.publish_ros_message("walk_to_backward")
+                        break
                     elif event.button == 13:
                         print("Joystick button pressed left")
                         self.publish_ros_message("turn_to_left")
+                        break
                     if event.button == 14:
                         print("Joystick button pressed right")
                         self.publish_ros_message("turn_to_right")
+                        break
                 except:
                     pass
+            sleep(1)
 
         pygame.quit()
 
