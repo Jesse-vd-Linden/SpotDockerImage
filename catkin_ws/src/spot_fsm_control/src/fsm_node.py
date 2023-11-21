@@ -82,11 +82,11 @@ class FsmNode:
         
         self.participant_number = participant
         participant_dir = Path(__file__).parent.parent.parent.parent.parent.joinpath(f"/data/experiments/P{participant:03d}/")
-        
+
         self.pub_status = rospy.Publisher('/robot_status', String, queue_size=2)
         self.last_execution_time = None
         self.wait_time_for_execution = 2
-        
+
         participant_dir.mkdir( parents=True, exist_ok=True )    
         self.filename_odom = f"{participant_dir}/{condition}_odom_{timestamp}.csv"
         self.filename_hololens = f"{participant_dir}/{condition}_hololens_{timestamp}.csv"
@@ -149,6 +149,7 @@ class FsmNode:
             
         if not self.last_execution_time or time.time() - self.last_execution_time > self.wait_time_for_execution:
             self.last_execution_time = time.time()
+            self.pub_status.publish("running")
             try_state_send(self.sm, data.data)
             print(f"\nI heard: {data.data}")
         else:
@@ -340,7 +341,7 @@ class FsmNode:
         rospy.spin()
 
 if __name__ == "__main__":
-    participant = 995
+    participant = 999
     conditions = [
             "speech_freewalking",
             "speech_stationary",
@@ -349,11 +350,10 @@ if __name__ == "__main__":
             "controller_freewalking",
             "controller_stationary",
     ]
-    condition = conditions[0]
+    condition = conditions[5]
      
     robotInterface = SpotControlInterface(DIRECT_CONTROL_FREQUENCY)
     # robotInterface = None
-    
     
     if robotInterface:
         sdk = bosdyn.client.create_standard_sdk('SpotControlInterface')
