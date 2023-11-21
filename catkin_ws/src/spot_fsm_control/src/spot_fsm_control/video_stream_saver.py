@@ -5,7 +5,7 @@ from pathlib import Path
 import bosdyn.util
 from bosdyn.api import image_pb2, image_service_pb2_grpc
 from bosdyn.client.image import ImageClient, build_image_request, save_images_as_files
-
+import rospy
 
 
 class VideoStreamSaver:
@@ -27,7 +27,7 @@ class VideoStreamSaver:
         self.image_requests = [build_image_request(x, quality_percent=quality_percent, image_format=image_format, pixel_format=pixel_format) for x in self.images_to_be_saved]
         
         fourcc = cv2.VideoWriter_fourcc(*'XVID')  # or 'MP4V', 'MJPG', etc.
-        # participant_dir = Path(__file__).parent.parent.parent.joinpath(f"/data/experiments/P{participant:03d}/video/")
+        # participant_dir = f"c:/dev/SpotDockerImage/data/experiments/P{participant:03d}/video/"
         participant_dir = Path(__file__).parent.parent.parent.parent.parent.parent.joinpath(f"/data/experiments/P{participant:03d}/video/")
         participant_dir.mkdir( parents=True, exist_ok=True )    
         self.video_writers = [
@@ -36,7 +36,7 @@ class VideoStreamSaver:
         ]
 
     def run(self):
-        while True:
+        while True and not rospy.is_shutdown():
             image_responses = self.image_client.get_image(self.image_requests)
             
             i = 0
@@ -44,11 +44,10 @@ class VideoStreamSaver:
                 img = np.frombuffer(image.shot.image.data, dtype=np.uint8)
                 img = cv2.imdecode(img, -1)
                 self.video_writers[i].write(img)
-                # if i == 1:
-                #     print("Back camera")
+                if i == 1:
+                    pass
+                    # print("Back camera")
                 i += 1
-                
-                cv2.waitKey(1)
 
 if __name__ == "__main__":
     # Create and authenticate a bosdyn robot object.
