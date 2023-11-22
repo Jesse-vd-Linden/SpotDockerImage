@@ -3,14 +3,14 @@ import numpy as np
 from pathlib import Path
 
 import bosdyn.util
-from bosdyn.api import image_pb2, image_service_pb2_grpc
+from bosdyn.api import image_pb2
 from bosdyn.client.image import ImageClient, build_image_request, save_images_as_files
 import rospy
 
 
 class VideoStreamSaver:
     
-    def __init__(self, image_client, participant, condition, quality_percent=90):
+    def __init__(self, image_client, participant, condition, timestamp, quality_percent=90):
         self.image_client = image_client
         self.images_to_be_saved = [
             "hand_color_image",
@@ -30,6 +30,7 @@ class VideoStreamSaver:
         # participant_dir = f"c:/dev/SpotDockerImage/data/experiments/P{participant:03d}/video/"
         participant_dir = Path(__file__).parent.parent.parent.parent.parent.parent.joinpath(f"/data/experiments/P{participant:03d}/video/")
         participant_dir.mkdir( parents=True, exist_ok=True )    
+                
         self.video_writers = [
             cv2.VideoWriter(f"{participant_dir}/{condition}_hand_color.avi", fourcc, 4.0, (640,480)),
             cv2.VideoWriter(f"{participant_dir}/{condition}_back_fisheye.avi", fourcc, 4.0, (640,480)),

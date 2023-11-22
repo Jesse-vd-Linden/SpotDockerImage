@@ -1,5 +1,14 @@
+#!/bin/bash
+
+PARTICIPANT = "$1"
+CONDITION = "$2"
+
+echo PARTICIPANT
+echo CONDITION
+
 export BOSDYN_CLIENT_USERNAME=user
 export BOSDYN_CLIENT_PASSWORD=corspotuser1
+
 cd ./catkin_ws
 catkin_make
 source devel/setup.bash

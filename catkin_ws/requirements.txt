@@ -26,3 +26,4 @@ opencv-python
 openvr
 matplotlib
 tk-tools
+pygame
