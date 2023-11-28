@@ -32,8 +32,8 @@ class VideoStreamSaver:
         participant_dir.mkdir( parents=True, exist_ok=True )    
                 
         self.video_writers = [
-            cv2.VideoWriter(f"{participant_dir}/{condition}_hand_color_{timestamp}.avi", fourcc, 1.0, (640,480)),
-            cv2.VideoWriter(f"{participant_dir}/{condition}_back_fisheye_{timestamp}.avi", fourcc, 1.0, (640,480)),
+            cv2.VideoWriter(f"{participant_dir}/{condition}_hand_color.avi", fourcc, 4.0, (640,480)),
+            cv2.VideoWriter(f"{participant_dir}/{condition}_back_fisheye.avi", fourcc, 4.0, (640,480)),
         ]
 
     def run(self):
