@@ -3,43 +3,99 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Adjusting the data for custom start and finish times
-data_speech = {
-    "Task": ["Task 1", "Task 2", "Task 3"],
-    "Start": [0, 300, 700],
-    "Duration": [300, 400, 800]
-}
-
-data_gestures = [
+data_speech = [
     {
         "Task": "Say command",
         "Start": 0,
-        "Duration": 200,
+        "Duration": 1000,
+    },
+    
+    {
+        "Task": "Speech Recognition Time",
+        "Start": 1000,
+        "Duration": 1300,
     },
     {
-        "Task": "Recognized command",
-        "Start": 0,
-        "Duration": 300,
-    },
-    {
-        "Task": "Send ROS message",
-        "Start": 300,
-        "Duration": 200,
-    },
-    {
-        "Task": "Execute movement",
-        "Start": 500,
+        "Task": "Timer for Audio Feedback",
+        "Start": 2300,
         "Duration": 3000,
     },
     {
-        "Task": "Start timer for beep",
-        "Start": 500,
-        "Duration": 4000,
+        "Task": "Recognition Feedback Panel",
+        "Start": 2800,
+        "Duration": 1500,
     },
-
+    {
+        "Task": "Robot Forward Movement",
+        "Start": 2800,
+        "Duration": 3600,
+    },
+    {
+        "Task": "Robot Rotate Movement",
+        "Start": 2800,
+        "Duration": 2500,
+    },
 ]
 
-# df = pd.DataFrame(data_speech)
+data_gestures= [
+    {
+        "Task": "Hold Gesture",
+        "Start": 0,
+        "Duration": 2200,
+    },
+    {
+        "Task": "Timer for Audio Feedback",
+        "Start": 1700,
+        "Duration": 3000,
+    },
+    {
+        "Task": "Recognition Feedback Panel",
+        "Start": 2200,
+        "Duration": 1500,
+    },
+    {
+        "Task": "Robot Forward Movement",
+        "Start": 2200,
+        "Duration": 3600,
+    },
+    {
+        "Task": "Robot Rotate Movement",
+        "Start": 2200,
+        "Duration": 2500,
+    },
+]
+
+
+tasks_speech = len(data_speech)
+tasks_gestures = len(data_gestures)
+
+df = pd.DataFrame(data_speech)
+df = df.iloc[::-1]
+
+# Creating a figure
+plt.figure(figsize=(10, 3))
+
+cmap =  mpl.cm.get_cmap("tab20b")
+
+# Plotting each task
+for i, row in df.iterrows():
+    plt.barh((tasks_speech - i - 1), row["Duration"], left=row["Start"], color=cmap((i / 5)+0.1))
+
+    # Adding task label
+    plt.text(row["Start"] + row["Duration"] / 2, (tasks_speech - i - 1), f'{row["Task"]}', color='black', ha="center", va="center")
+
+# Setting labels and title
+plt.xlabel("Time [ms]")
+plt.ylabel("Tasks")
+plt.title("Speech Recognition and Task Execution Timeline")
+
+# Formatting x-axis to show milliseconds
+plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{int(x)} ms'))
+
+plt.tight_layout()
+plt.show()
+
+
 df = pd.DataFrame(data_gestures)
 print(df)
 df = df.iloc[::-1]
@@ -48,19 +104,19 @@ print(df)
 # Creating a figure
 plt.figure(figsize=(10, 3))
 
-cmap =  mpl.cm.get_cmap("tab20c")
+cmap =  mpl.cm.get_cmap("tab20b")
 
 # Plotting each task
 for i, row in df.iterrows():
-    plt.barh(row["Task"], row["Duration"], left=row["Start"], color=cmap(i/20))
+    plt.barh((tasks_gestures - i - 1), row["Duration"], left=row["Start"], color=cmap((i / 5)+0.1))
 
     # Adding task label
-    # plt.text(row["Start"] + row["Duration"] / 2, i, f'{row["Task"]}', color='black', ha="center", va="center")
+    plt.text(row["Start"] + row["Duration"] / 2, (tasks_gestures - i - 1), f'{row["Task"]}', color='black', ha="center", va="center")
 
 # Setting labels and title
 plt.xlabel("Time [ms]")
 plt.ylabel("Tasks")
-plt.title("Gantt Chart with Custom Start and Finish Times")
+plt.title("Gesture Recognition and Task Execution Timeline")
 
 # Adjusting the x-axis limits
 # plt.xlim(0, (df["Duration"].values[0] + df["Start"].values[0])+200)

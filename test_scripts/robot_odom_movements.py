@@ -1,12 +1,3 @@
-# Copyright (c) 2023 Boston Dynamics, Inc.  All rights reserved.
-#
-# Downloading, reproducing, distributing or otherwise using the SDK Software
-# is subject to the terms and conditions of the Boston Dynamics Software
-# Development Kit License (20191101-BDSDK-SL).
-
-"""Tutorial to show how to use Spot's arm.
-"""
-import argparse
 import sys
 import time
 
@@ -17,25 +8,43 @@ import bosdyn.client
 import bosdyn.client.estop
 import bosdyn.client.lease
 import bosdyn.client.util
-from bosdyn.api import estop_pb2, geometry_pb2, image_pb2, manipulation_api_pb2, trajectory_pb2
+from bosdyn.api import estop_pb2
 from bosdyn.api.basic_command_pb2 import RobotCommandFeedbackStatus
 from bosdyn.client.estop import EstopClient
-from bosdyn.client.frame_helpers import VISION_FRAME_NAME, GRAV_ALIGNED_BODY_FRAME_NAME, get_vision_tform_body, math_helpers
-from bosdyn.client.image import ImageClient
-from bosdyn.client.manipulation_api_client import ManipulationApiClient
-from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder, blocking_stand, block_until_arm_arrives
-from bosdyn.client.robot_state import RobotStateClient
-from bosdyn.util import seconds_to_duration
+from bosdyn.client.robot_command import RobotCommandClient, RobotCommandBuilder, blocking_stand
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 
-g_image_click = None
-g_image_display = None
-
-movement_commands = [
+movement_commands_definition = [
     [1.0, 0.0, 0.0], # forward
     [0.0, 0.0, np.pi/2], # left
     [0.0, 0.0, -1 * np.pi/2], # right
 ]
 
+movement_commands = [
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, -1 * np.pi/2], # right
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, np.pi/2], # left
+    [1.0, 0.0, 0.0], # forward
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, np.pi/2], # left
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, np.pi/2], # left
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, -1 * np.pi/2], # right
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, -1 * np.pi/2], # right
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, np.pi/2], # left
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, np.pi/2], # left
+    [1.0, 0.0, 0.0], # forward
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, np.pi/2], # left
+    [1.0, 0.0, 0.0], # forward
+    [0.0, 0.0, -1 * np.pi/2], # right
+    [1.0, 0.0, 0.0] # forward
+]
 
 def verify_estop(robot):
     """Verify the robot is not estopped"""
@@ -86,9 +95,12 @@ def preprogrammed_movements():
         blocking_stand(command_client, timeout_sec=10)
         robot.logger.info('Robot standing.')
         
-        
+        start_time = time.time()
         for movement_command in movement_commands:
             body_frame_move_command(command_client, robot, movement_command)
+            time.sleep(1.5)
+
+        print(f"All movements took {time.time() - start_time} seconds")
 
         robot.logger.info('Sitting down and turning off.')
 
@@ -103,14 +115,13 @@ def body_frame_move_command(command_client, robot, movement_command):
     x = movement_command[0]
     y = movement_command[1]
     yaw = movement_command[2]
-    trajectory_command = RobotCommandBuilder.synchro_trajectory_command_in_body_frame(x, y, yaw, robot.get_frame_tree_snapshot())
+    trajectory_command = RobotCommandBuilder.synchro_trajectory_command_in_body_frame(x, y, yaw, robot.get_frame_tree_snapshot(), locomotion_hint=spot_command_pb2.HINT_CRAWL)
     robot.logger.info("Moving to object")
     cmd_id = command_client.robot_command(trajectory_command, end_time_secs=time.time()+10)
     robot.logger.info("Movement finished.")
     
     while True:
         feedback = command_client.robot_command_feedback(cmd_id)
-        print(vars(feedback.feedback))
         mobility_feedback = feedback.feedback.synchronized_feedback.mobility_command_feedback
         if mobility_feedback.status != RobotCommandFeedbackStatus.STATUS_PROCESSING:
             print('Failed to reach the goal')
@@ -123,25 +134,7 @@ def body_frame_move_command(command_client, robot, movement_command):
         time.sleep(0.2)
 
 
-def cv_mouse_callback(event, x, y, flags, param):
-    global g_image_click, g_image_display
-    clone = g_image_display.copy()
-    if event == cv2.EVENT_LBUTTONUP:
-        g_image_click = (x, y)
-    else:
-        # Draw some lines on the image.
-        # print('mouse', x, y)
-        color = (30, 30, 30)
-        thickness = 2
-        image_title = 'Click to grasp'
-        height = clone.shape[0]
-        width = clone.shape[1]
-        cv2.line(clone, (0, y), (width, y), color, thickness)
-        cv2.line(clone, (x, 0), (x, height), color, thickness)
-        cv2.imshow(image_title, clone)
-
-
-def main(argv):
+def main():
 
     try:
         preprogrammed_movements()
@@ -153,5 +146,5 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    if not main(sys.argv[1:]):
+    if not main():
         sys.exit(1)

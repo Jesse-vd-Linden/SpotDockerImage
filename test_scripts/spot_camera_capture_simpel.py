@@ -56,7 +56,7 @@ if __name__ == "__main__":
     quality_scores = [1, 25, 50, 75, 90, 100]
     
     for quality in quality_scores:
-        vss = VideoStreamSaver(image_client, quality_scores)
+        vss = VideoStreamSaver(image_client, quality)
         for i in tqdm(range(50)):
             vss.video_thread_with_image_client()
             
