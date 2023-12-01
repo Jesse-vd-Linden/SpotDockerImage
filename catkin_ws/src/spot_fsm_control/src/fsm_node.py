@@ -302,11 +302,11 @@ class FsmNode:
             row = []
             odometry_vision_data = self.get_robot_vision_pose()
             odometry_data = self.get_robot_odom_pose()
-            row.extend(list(odometry_data[:3]))
-            row.extend(list(odometry_data[3:6]))
-            row.extend(list(odometry_vision_data[:3]))
-            row.extend(list(odometry_vision_data[3:6]))
-            msg.data = row
+            row.extend(list(odometry_data[:3])) # position odom [x,y,z]
+            row.extend(list(odometry_data[3:6])) # orientation odom [yaw,pitch,roll]
+            row.extend(list(odometry_vision_data[:3])) # position vision [x,y,z]
+            row.extend(list(odometry_vision_data[3:6])) # orientation vision [yaw,pitch,roll]
+            msg.data = row 
             pub.publish(msg)
             
         # vss_thread.stop()
