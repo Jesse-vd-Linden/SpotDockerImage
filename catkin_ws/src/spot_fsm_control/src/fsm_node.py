@@ -295,23 +295,19 @@ class FsmNode:
         rospy.Subscriber("chatter", String, self.callback_action)
         rospy.Subscriber("data_collection", Float32MultiArray, self.callback_data_collection)
         
-        # date_start = datetime.now().strftime("%Y-%m-%dT%H%M%S")
-        # self.csv_filename = f"C:\\dev\\SpotDockerImage\\data\deictic_movements\\deictic_data_{date_start}.csv"
-        # with open(self.csv_filename , 'w', newline='') as file:
-        #     writer = csv.writer(file)
-        #     field = ["x_person", "y_person", "x_object", "y_object", "goal_rotation", "x_robot", "y_robot", "x_robot_new", "y_robot_new", "robot_rotation_new"]
-        #     writer.writerow(field)
-        #     file.close()
-        # rospy.Subscriber("deictic_walk", Float32MultiArray, self.callback_deictic_walk)
-        # odom_positions, vision_odom_positions = self.calibration_movement()
-        # self.calibrate_odometry_rotations(odom_positions, frame="odom")
-        # self.calibrate_odometry_rotations(vision_odom_positions, frame="vision")
-        # self.robot.two_d_location_body_frame_command(x=-1.0, y=0, yaw=0)
-        # self.robot.sit_down()
-        # print("Calibration Finished.")
+        pub = rospy.Publisher('spot_odom', Float32MultiArray)
         
-        rospy.spin()
-        
+        while not rospy.is_shutdown():
+            msg = Float32MultiArray()
+            row = []
+            odometry_vision_data = self.get_robot_vision_pose()
+            odometry_data = self.get_robot_odom_pose()
+            row.extend([list(odometry_data[:3])])
+            row.extend([list(odometry_data[3:6])])
+            row.extend([list(odometry_vision_data[:3])])
+            row.extend([list(odometry_vision_data[3:6])])
+            msg.data = row
+            pub.publish(msg)
         
     def callback_data_collection(self, data):
         array = data.data
