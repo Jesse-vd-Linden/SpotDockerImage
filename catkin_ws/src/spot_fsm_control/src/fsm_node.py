@@ -302,12 +302,14 @@ class FsmNode:
             row = []
             odometry_vision_data = self.get_robot_vision_pose()
             odometry_data = self.get_robot_odom_pose()
-            row.extend([list(odometry_data[:3])])
-            row.extend([list(odometry_data[3:6])])
-            row.extend([list(odometry_vision_data[:3])])
-            row.extend([list(odometry_vision_data[3:6])])
+            row.extend(list(odometry_data[:3]))
+            row.extend(list(odometry_data[3:6]))
+            row.extend(list(odometry_vision_data[:3]))
+            row.extend(list(odometry_vision_data[3:6]))
             msg.data = row
             pub.publish(msg)
+            
+        # vss_thread.stop()
         
     def callback_data_collection(self, data):
         array = data.data
