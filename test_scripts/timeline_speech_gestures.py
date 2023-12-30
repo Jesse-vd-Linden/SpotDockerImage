@@ -26,12 +26,7 @@ data_speech = [
         "Duration": 1500,
     },
     {
-        "Task": "Robot Forward Movement",
-        "Start": 2800,
-        "Duration": 3600,
-    },
-    {
-        "Task": "Robot Rotate Movement",
+        "Task": "Robot Movement",
         "Start": 2800,
         "Duration": 2500,
     },
@@ -54,12 +49,7 @@ data_gestures= [
         "Duration": 1500,
     },
     {
-        "Task": "Robot Forward Movement",
-        "Start": 2200,
-        "Duration": 3600,
-    },
-    {
-        "Task": "Robot Rotate Movement",
+        "Task": "Robot Movement",
         "Start": 2200,
         "Duration": 2500,
     },
