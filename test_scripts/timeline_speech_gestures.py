@@ -9,7 +9,6 @@ data_speech = [
         "Start": 0,
         "Duration": 1000,
     },
-    
     {
         "Task": "Speech Recognition Time",
         "Start": 1000,
