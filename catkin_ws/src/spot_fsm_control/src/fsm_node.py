@@ -287,12 +287,39 @@ class FsmNode:
             writer = csv.writer(file)
             writer.writerow(data_to_save)
             file.close()
+
+    def callback_gripper(self, data):
+        if self.robot.current_state_direct_control:
+            print(data)
+            close_or_open = data.data
+            self.robot.gripper(close_or_open)
+            # time.sleep(1)
+        else:
+            pass
+    
+    def callback_hand_pose(self, data):
+        if self.robot.current_state_direct_control:
+            if self.robot.init_pos_empty:
+                self.arm_pos_init = [data.position.x, data.position.y, data.position.z]
+        
+            pos = 1.0*(np.array([data.position.x, data.position.y, data.position.z] - np.array(self.arm_pos_init)))
+            orientation = math_helpers.Quat(1, 0, 0, 0)
+            hand_pose = math_helpers.SE3Pose(x=0.75+pos[0], y=pos[1], z=0.45+pos[2], rot=orientation)
+            
+            self.pose_receive_count += 1
+            if self.pose_receive_count >= self.frequency_pose_count:
+                print(hand_pose)
+                self.pose_receive_count = 0
+                self.robot.init_pos_empty = False
+                self.robot.move_to_cartesian_pose_rt_task(hand_pose, self.odom_T_task, self.wr1_T_tool)
         
     def run(self, video_stream_saver):
         rospy.init_node('listener', anonymous=True)
         vss_thread = threading.Thread(target=video_stream_saver.run)
         vss_thread.start()
         rospy.Subscriber("chatter", String, self.callback_action)
+        rospy.Subscriber("gripper", String, self.callback_gripper)
+        rospy.Subscriber("hand_pose", Pose, self.callback_hand_pose)
         rospy.Subscriber("data_collection", Float32MultiArray, self.callback_data_collection)
         
         pub = rospy.Publisher('spot_odom', Float32MultiArray)
