@@ -82,6 +82,7 @@ plt.title("Speech Recognition and Task Execution Timeline")
 plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{int(x)} ms'))
 
 plt.tight_layout()
+plt.savefig("C:\dev\SpotDockerImage\\test_scripts/speech_timeline.png")
 plt.show()
 
 
@@ -114,4 +115,5 @@ plt.title("Gesture Recognition and Task Execution Timeline")
 plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{int(x)} ms'))
 
 plt.tight_layout()
+plt.savefig("C:\dev\SpotDockerImage\\test_scripts/gesture_timeline.png")
 plt.show()

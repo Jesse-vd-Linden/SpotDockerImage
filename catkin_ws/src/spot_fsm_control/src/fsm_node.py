@@ -147,13 +147,18 @@ class FsmNode:
             writer = csv.writer(f)
             writer.writerow([timestamp, data.data, percentage])
             
-        if not self.last_execution_time or time.time() - self.last_execution_time > self.wait_time_for_execution:
-            self.last_execution_time = time.time()
-            self.pub_status.publish("running")
-            try_state_send(self.sm, data.data)
-            print(f"\nI heard: {data.data}")
-        else:
-            print(f"\nI heard: {data.data} but I am waiting for the execution")
+        self.last_execution_time = time.time()
+        self.pub_status.publish("running")
+        try_state_send(self.sm, data.data)
+        print(f"\nI heard: {data.data}")
+            
+        # if not self.last_execution_time or time.time() - self.last_execution_time > self.wait_time_for_execution:
+        #     self.last_execution_time = time.time()
+        #     self.pub_status.publish("running")
+        #     try_state_send(self.sm, data.data)
+        #     print(f"\nI heard: {data.data}")
+        # else:
+        #     print(f"\nI heard: {data.data} but I am waiting for the execution")
 
     def callback_action_dummy(self, data):
         if not self.last_execution_time or time.time() - self.last_execution_time > self.wait_time_for_execution:
@@ -351,7 +356,7 @@ class FsmNode:
         odometry_data = self.get_robot_odom_pose()
         row = [timestamp]
         row.extend([list(odometry_data[:3])])
-        row.extend([list(odometry_data[3:6])])
+        row.extend([list(odometry_data[3:6])])  
         row.extend([list(odometry_vision_data[:3])])
         row.extend([list(odometry_vision_data[3:6])])
         
@@ -414,6 +419,8 @@ if __name__ == "__main__":
             fsm = FsmNode(robot=robotInterface, robot_sdk=robot, timestamp=timestamp, participant=participant, condition=condition)
             vss = VideoStreamSaver(robotInterface.image_client, participant, condition, timestamp)
             fsm.run(vss)
+            
+            robotInterface.sit_down()
 
         for out in vss.video_writers:
             out.release()
