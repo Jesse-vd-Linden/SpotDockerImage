@@ -159,14 +159,6 @@ class FsmNode:
         #     print(f"\nI heard: {data.data}")
         # else:
         #     print(f"\nI heard: {data.data} but I am waiting for the execution")
-
-    def callback_action_dummy(self, data):
-        if not self.last_execution_time or time.time() - self.last_execution_time > self.wait_time_for_execution:
-            self.last_execution_time = time.time()
-            self.pub_status.publish("running")
-            print(f"\nI heard: {data.data}")
-        else:
-            print(f"\nI heard: {data.data} but I am waiting for the execution")
         
     def triangulate_position(self, data):
         pose = self.get_robot_vision_pose()
@@ -317,6 +309,29 @@ class FsmNode:
                 self.pose_receive_count = 0
                 self.robot.init_pos_empty = False
                 self.robot.move_to_cartesian_pose_rt_task(hand_pose, self.odom_T_task, self.wr1_T_tool)
+                
+    
+        
+    def callback_data_collection(self, data):
+        array = data.data
+        timestamp  = time.time() - self.node_start_time
+        entry = [timestamp]
+        entry.extend([array[:3], array[3:6], array[6:9], array[9:12], array[12:16]])
+        with open(self.filename_hololens, "a", newline='', encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(entry)
+            
+        odometry_vision_data = self.get_robot_vision_pose()
+        odometry_data = self.get_robot_odom_pose()
+        row = [timestamp]
+        row.extend([list(odometry_data[:3])])
+        row.extend([list(odometry_data[3:6])])  
+        row.extend([list(odometry_vision_data[:3])])
+        row.extend([list(odometry_vision_data[3:6])])
+        
+        with open(self.filename_odom, "a", newline='', encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(row)
         
     def run(self, video_stream_saver):
         rospy.init_node('listener', anonymous=True)
@@ -343,31 +358,29 @@ class FsmNode:
             
         # vss_thread.stop()
         
-    def callback_data_collection(self, data):
-        array = data.data
-        timestamp  = time.time() - self.node_start_time
-        entry = [timestamp]
-        entry.extend([array[:3], array[3:6], array[6:9], array[9:12], array[12:16]])
-        with open(self.filename_hololens, "a", newline='', encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(entry)
-            
-        odometry_vision_data = self.get_robot_vision_pose()
-        odometry_data = self.get_robot_odom_pose()
-        row = [timestamp]
-        row.extend([list(odometry_data[:3])])
-        row.extend([list(odometry_data[3:6])])  
-        row.extend([list(odometry_vision_data[:3])])
-        row.extend([list(odometry_vision_data[3:6])])
+    ##############################################
+    ############ Dummy with callbacks ############
+    ##############################################
         
-        with open(self.filename_odom, "a", newline='', encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(row)
+    
+    def callback_action_dummy(self, data):
+        print(f"\nChatter heard: {data.data}")
+            
+    def callback_gripper_dummy(self, data):
+        print("Gripper:", data.data)
 
+    def callback_hand_pose_dummy(self, data):
+        print("Hand pose:", [data.position.x, data.position.y, data.position.z])
+        
+    def callback_data_collection_dummy(self, data):
+        print("Data Collection:", data.data)
+    
     def run_dummy(self):
         rospy.init_node('listener', anonymous=True)
         rospy.Subscriber("chatter", String, self.callback_action_dummy)
-        # rospy.Subscriber("data_collection", Float32MultiArray, self.callback_data_collection)
+        rospy.Subscriber("gripper", String, self.callback_gripper_dummy)
+        rospy.Subscriber("hand_pose", Pose, self.callback_hand_pose_dummy)
+        # rospy.Subscriber("data_collection", Float32MultiArray, self.callback_data_collection_dummy)
         rospy.spin()
 
 if __name__ == "__main__":
@@ -382,8 +395,8 @@ if __name__ == "__main__":
     ]
     condition = conditions[5]
      
-    robotInterface = SpotControlInterface(DIRECT_CONTROL_FREQUENCY)
-    # robotInterface = None
+    # robotInterface = SpotControlInterface(DIRECT_CONTROL_FREQUENCY) # Controlling the robot
+    robotInterface = None # Looking at message from HoloLens
     
     if robotInterface:
         sdk = bosdyn.client.create_standard_sdk('SpotControlInterface')
