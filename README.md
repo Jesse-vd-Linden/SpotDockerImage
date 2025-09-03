@@ -15,7 +15,7 @@ Actions are controlled by a state machine to allow for serialized execution of a
   * [Windows install instructions](https://www.youtube.com/watch?v=8QC7-Odeqhc)
 * Python 3.8.10
 * bosdyn 3.2.0 PyPi packages
-* [ROS-TCP-Connector](https://github.com/Unity-Technologies/ROS-TCP-Connector)
+* [ROS-TCP-Endpoint](https://github.com/Unity-Technologies/ROS-TCP-Endpoint)
     * Needs to be cloned in the ```catkin_ws/src``` folder
 
 ## Run the image
@@ -39,3 +39,4 @@ If in the same terminal, you can now run only launching the ROS nodes without bu
 ```bash
 start.bat
 ```
+
